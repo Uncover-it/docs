@@ -12,13 +12,16 @@
   },
   "dependencies": {
     "@orama/orama": "^3.1.18",
+    "ajv": "^8.17.1",
     "fumadocs-core": "16.4.6",
     "fumadocs-mdx": "14.2.4",
+    "fumadocs-openapi": "^10.2.4",
     "fumadocs-ui": "16.4.6",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "shiki": "^3.21.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",

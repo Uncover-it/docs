@@ -1,0 +1,13 @@
+---
+title: Check if a file already exists
+---
+
+## Step one: Initialize a new websocket connection
+
+Endpoint: ```wss://api.uncoverit.org/websocket?hash=${hash}&apikey=${apiKey}```
+
+<Callout type="info">`hash` must be a SHA-256 hash string</Callout>
+
+## Step two: Listen for messages
+
+If the message returned is `STATUS:UPLOAD_REQUIRED`, you can procede to [upload the file](/api/manual/upload-file). Otherwise, the file has been analyzed and the report is ready to be [fetched](/api/manual/static-analysis-report).

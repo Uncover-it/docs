@@ -1,0 +1,47 @@
+---
+title: API
+description: With the API, you can upload and analyze files without needing to visit the website.
+---
+
+# Getting Started
+
+To begin with, you will require an [api key](https://www.uncoverit.org/).
+
+Uncover it provides 3 public tiers along with special plans for those who need more requests
+
+<Tabs items={['Tier 1', 'Tier 2', 'Tier 3', 'Enterprise']}>
+  <Tab value="Tier 1">150 Requests ~ 75 Files</Tab>
+  <Tab value="Tier 2">300 Requests ~ 150 Files</Tab>
+  <Tab value="Tier 3">1000 Requests ~ 500 Files</Tab>
+  <Tab value="Enterprise">Custom as required</Tab>
+</Tabs>
+
+<Callout type="warn">
+    Note that Uncover it does not provide API access for free
+</Callout>
+
+Since each file upload takes one request and each report fetch takes one request, if used correctly the API will only use 2 requests per file.
+
+The API key will **automatically expire after one month of purchase unless renewed within time**. You will need to buy a fresh one to keep using our service.
+
+# Usage
+
+## Using a package (recommended)
+
+All packages come with type-safety, automatic caching, error handelling and will make sure you don't accidently lose out on precious usage
+
+<Cards>
+    <Card title="NPM" href="/npm"/>
+    <Card title="PIP" href="/python"/>
+</Cards>
+
+## Manual
+
+Manually make connections with the API. Ensure memoization rules are in place properly so you don't waste requests and don't be shy to reach out if you need any help
+
+<Cards>
+    <Card title="Fetch Balance" description="Fetches balance and expiration date" href="/manual/fetch-balance"/>
+    <Card title="Upload a file" description="Upload a file to our servers for analysis" href="/manual/upload-file"/>
+    <Card title="Fetch static analysis report" description="Fetch a static analysis report from a file's SHA-256, SHA-512 or
+    BLAKE3 hash" href="/manual/upload-file"/>
+</Cards>

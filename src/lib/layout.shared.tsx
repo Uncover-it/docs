@@ -1,9 +1,10 @@
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 export function baseOptions(): BaseLayoutProps {
   return {
+    githubUrl: "https://github.com/Uncover-it/docs",
     nav: {
-      title: 'My App',
+      title: "Uncover it - Documentation",
     },
   };
 }
