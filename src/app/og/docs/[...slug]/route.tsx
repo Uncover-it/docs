@@ -23,7 +23,7 @@ export async function GET(
       title={page.data.title}
       description={page.data.description}
       site="Uncover it"
-      logo={<img width="80" height="80" src={src} />}
+      logo={<img width="80" height="80" src={src} alt="Uncover it Logo" />}
     />,
     await getImageResponseOptions(),
   );
