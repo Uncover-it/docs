@@ -9,6 +9,15 @@ import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/mdx-components";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
+
+function getMarkdownUrl(pageUrl: string): string {
+  // Use /llm prefix with .txt extension for LLM-friendly URLs
+  if (pageUrl === "/" || pageUrl === "") {
+    return "/llm/index.txt";
+  }
+  return `/llm${pageUrl}.txt`;
+}
 
 export default async function Page(props: PageProps<"/[[...slug]]">) {
   const params = await props.params;
@@ -21,6 +30,7 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
   if (!page) notFound();
 
   const MDX = page.data.body;
+  const markdownUrl = getMarkdownUrl(page.url);
 
   return (
     <DocsPage
@@ -29,7 +39,16 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
       tableOfContent={{ style: "clerk" }}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsDescription className="mb-0">
+        {page.data.description}
+      </DocsDescription>
+      <div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
+        <LLMCopyButton markdownUrl={markdownUrl} />
+        <ViewOptions
+          markdownUrl={markdownUrl}
+          githubUrl={`https://github.com/Uncover-it/docs/blob/master/content/docs/${page.path}`}
+        />
+      </div>
       <DocsBody>
         <MDX
           components={getMDXComponents({
