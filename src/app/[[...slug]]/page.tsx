@@ -84,6 +84,7 @@ export async function generateMetadata(
   if (!page) notFound();
 
   return {
+    alternates: {canonical: page.url},
     title: page.data.title,
     description: page.data.description,
     openGraph: {
