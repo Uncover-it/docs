@@ -10,6 +10,8 @@ import { getMDXComponents } from "@/mdx-components";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
+import { openapi } from "@/lib/openapi";
+import { OpenAPIPage } from "@/components/api-page";
 
 function getMarkdownUrl(pageUrl: string): string {
   // Use /llm prefix with .txt extension for LLM-friendly URLs
@@ -54,6 +56,15 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
+            // Generated OpenAPI pages embed <APIPage document="..." operations={...} />.
+            // v11 dropped the server-bound page component, so resolve the bundled
+            // schema by its document id and hand it to the client component as `payload`.
+            APIPage: async ({ document, ...props }) => (
+              <OpenAPIPage
+                payload={{ bundled: (await openapi.getSchema(document)).bundled }}
+                {...props}
+              />
+            ),
           })}
         />
       </DocsBody>

@@ -3,19 +3,20 @@ title: PyPI
 description: Intergrate Uncover it's API with your python project easily with the official uncoverit PyPI package
 ---
 
-# Installation
+## Installation
 ```shell
 pip install uncoverit
 ```
 
-# Usage
+## Usage
 
 ```py
 from uncoverit import UncoveritClient
 from uncoverit.exceptions import *
 ```
 
-Fetching balance:
+### Fetching balance
+
 ```py
 from uncoverit import UncoveritClient
 async with await UncoveritClient.create(api_key) as client:
@@ -23,7 +24,8 @@ async with await UncoveritClient.create(api_key) as client:
     print(f"Requests left: {await client.check_balance()}") # makes a http request to fetch the balance
     # prints "Requests left: 1000"
 ```
-Checking if file exists (Upload function already does this:
+### Checking if file exists (Upload function already does this)
+
 ```py
 from uncoverit import UncoveritClient
 async with await UncoveritClient.create(api_key) as client:
@@ -31,7 +33,8 @@ async with await UncoveritClient.create(api_key) as client:
     # fetched_sample here is None
 ```
 
-Uploading a file:
+### Uploading a file
+
 ```py
 from uncoverit import UncoveritClient
 async with await UncoveritClient.create(api_key) as client:
@@ -44,7 +47,8 @@ async with await UncoveritClient.create(api_key) as client:
     print(uploaded_sample.md5)
 ```
 
-Fetching a static analysis report:
+### Fetching a static analysis report
+
 ```py
 from uncoverit import UncoveritClient
 async with await UncoveritClient.create(api_key) as client:
@@ -52,5 +56,4 @@ async with await UncoveritClient.create(api_key) as client:
     print(fetched_sample.json_obj.get("configs")) # print the configs from the json object
     print(fetched_sample.configs) # or get it from the sample
     print(fetched_sample.duration) # static analysis duration
-
 ```

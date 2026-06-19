@@ -3,13 +3,13 @@ title: npm
 description: Intergrate Uncover it's API with your javscript project easily with the official uncoverit npm package
 ---
 
-# Installation
+## Installation
 
 ```npm
 npm i uncoverit
 ```
 
-# Usage
+## Usage
 
 <Callout title="Important" type="warn">Please ensure these functions are always ran on the **server-side** to prevent API key abuse.</Callout>
 
@@ -20,10 +20,12 @@ import { fetchBalance, exists, upload, staticReport } from "uncoverit";
 import { BalanceResponseType, UploadResponseType, StaticAnalysisDataType }
 ```
 
-Fetching balance:
+### Fetching balance
+
 ```js
 await fetchBalance(apiKey);
 ```
+
 Example Response:
 ```json
 {
@@ -33,25 +35,29 @@ Example Response:
 }
 ```
 
-Checking if file exists (Upload function already does this:
+### Checking if file exists (Upload function already does this)
+
 ```js
 await exists(apiKey, file); // file can be a File, Blob or a SHA-256 hash string
 ```
+
 Example Response:
 ```
 true
 ```
 
-Uploading a file:
+### Uploading a file
+
 ```js
 await upload(apiKey, file); // file can be a File or a Blob
 ```
+
 Example Response:
 ```json
 { "blake3Hash": "8347c2669ff2a7d5a1c2e73171bec5c36e3ac5654699c20a622ebf24860255c8" }
 ```
 
-Fetching a static analysis report:
+### Fetching a static analysis report
 
 ```js
 await staticReport(apiKey, hash, { cache: true | false }); // hash can be SHA-256, SHA-512 or BLAKE3. cache defaults to false.

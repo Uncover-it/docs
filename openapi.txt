@@ -1,0 +1,236 @@
+openapi: 3.1.0
+info:
+  title: Uncover it API
+  version: 1.0.0
+  description: >-
+    API for submitting files for malware analysis and retrieving static
+    analysis reports.
+servers:
+  - url: https://api.uncoverit.org
+    description: Production API
+security:
+  - Authorization: []
+paths:
+  /api/balance:
+    # Balance is served from the main site, not the API subdomain.
+    servers:
+      - url: https://www.uncoverit.org
+        description: Main site
+    get:
+      summary: Fetch balance
+      operationId: fetchBalance
+      description: >-
+        Fetch your current balance and expiration date
+
+
+        **Note**: The actual base URL for this request is
+        [www.uncoverit.org](https://www.uncoverit.org) not api.uncoverit.org
+      responses:
+        "200":
+          description: The request was successful, and the server has returned the
+            requested resource in the response body.
+          content:
+            application/json:
+              schema:
+                type: object
+                title: FetchBalanceOk
+                required:
+                  - requests_left
+                  - expiration_date
+                  - created_at
+                properties:
+                  created_at:
+                    type: string
+                    format: date-time
+                  requests_left:
+                    type: number
+                    minimum: 0
+                  expiration_date:
+                    type: string
+                    format: date-time
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /private/upload:
+    post:
+      summary: Upload a file
+      operationId: uploadAFile
+      description: >-
+        Upload a file to our servers for analysis.
+
+
+        All requests decrement the amount of remaining requests by one
+
+
+        **IMPORTANT**: Please check the [websocket](/api/manual/websockets)
+        endpoint earlier to verify if the file already exists
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: The request was successful, and the server has returned the
+            requested resource in the response body.
+          content:
+            application/json:
+              schema:
+                type: object
+                title: UploadAFileOk
+                required:
+                  - blake3hash
+                properties:
+                  blake3hash:
+                    type: string
+                    examples:
+                      - 8347c2669ff2a7d5a1c2e73171bec5c36e3ac5654699c20a622ebf24860255c8
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /private/sample/{hash}:
+    get:
+      summary: Static analysis report
+      operationId: staticAnalysisReport
+      description: >-
+        Fetch a static analysis report from a file's SHA-256, SHA-512 or BLAKE3
+        hash
+
+
+        All requests decrement the amount of remaining requests by one
+      parameters:
+        - $ref: "#/components/parameters/hash"
+      responses:
+        "200":
+          description: The request was successful, and the server has returned the
+            requested resource in the response body.
+          content:
+            application/json:
+              schema:
+                type: object
+                title: StaticAnalysisReportOk
+                required:
+                  - date
+                  - sha512Hash
+                  - blake3Hash
+                  - sha256Hash
+                  - sha1Hash
+                  - mD5Hash
+                  - ssDeep
+                  - fileName
+                  - sizeInBytes
+                  - staticAnalysisDuration
+                  - configs
+                properties:
+                  date:
+                    type: string
+                    format: date-time
+                    description: Date the report was generated.
+                  tags:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - heat
+                      properties:
+                        heat:
+                          type: number
+                          maximum: 10
+                          minimum: 1
+                        name:
+                          type: string
+                  ssDeep:
+                    type: string
+                  configs:
+                    type: object
+                    properties:
+                      FAMILYNAME:
+                        type: object
+                  mD5Hash:
+                    type: string
+                  fileName:
+                    type: string
+                  sha1Hash:
+                    type: string
+                  blake3Hash:
+                    type: string
+                  sha256Hash:
+                    type: string
+                  sha512Hash:
+                    type: string
+                  sizeInBytes:
+                    type: number
+                  staticAnalysisDuration:
+                    type: string
+                    description: Duration of the static analysis.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+components:
+  securitySchemes:
+    Authorization:
+      type: apiKey
+      in: header
+      name: Authorization
+  parameters:
+    hash:
+      in: path
+      name: hash
+      required: true
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: The server could not understand the request due to invalid syntax.
+        The client should modify the request and try again.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - error
+            properties:
+              error:
+                type: string
+    Conflict:
+      description: The request could not be completed due to a conflict with the
+        current state of the resource. Resolve the conflict and try again.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - error
+            properties:
+              error:
+                type: string
+    InternalServerError:
+      description: The server encountered an unexpected condition that prevented it
+        from fulfilling the request. Report the issue to the support team if it
+        persists.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
