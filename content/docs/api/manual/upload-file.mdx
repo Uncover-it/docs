@@ -4,7 +4,7 @@ full: true
 _openapi:
   preload:
     - >-
-      https://api.api-fiddle.com/v1/public/resources/oas_api_3_1/rajvir-goenkas-organization-ur0/gold-bird-9as8
+      ./openapi.yaml
   method: POST
   webhook: false
   toc: []
@@ -31,7 +31,7 @@ export default function Layout(props) {
   return (
     <>
       {props.children}
-      <Comp document="https://api.api-fiddle.com/v1/public/resources/oas_api_3_1/rajvir-goenkas-organization-ur0/gold-bird-9as8" operations={[{"path":"/private/upload","method":"post"}]} showDescription />
+      <Comp document="./openapi.yaml" operations={[{"path":"/private/upload","method":"post"}]} showDescription />
     </>
   );
 }

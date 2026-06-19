@@ -8,6 +8,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://docs.uncoverit.org"),
+  title: {
+    template: "Uncover it - %s",
+    default: "Uncover it",
+  },
 };
 
 const inter = Inter({

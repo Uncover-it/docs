@@ -50,10 +50,10 @@ paths:
                     format: date-time
         "400":
           $ref: "#/components/responses/BadRequest"
-        "409":
-          $ref: "#/components/responses/Conflict"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /private/upload:
     post:
       summary: Upload a file
@@ -179,10 +179,10 @@ paths:
                     description: Duration of the static analysis.
         "400":
           $ref: "#/components/responses/BadRequest"
+        "404":
+          description: No static analysis report exists for the given hash.
         "409":
           $ref: "#/components/responses/Conflict"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
 components:
   securitySchemes:
     Authorization:
@@ -200,6 +200,28 @@ components:
     BadRequest:
       description: The server could not understand the request due to invalid syntax.
         The client should modify the request and try again.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - error
+            properties:
+              error:
+                type: string
+    Unauthorized:
+      description: Authentication failed. The API key is missing, invalid, or expired.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - error
+            properties:
+              error:
+                type: string
+    NotFound:
+      description: The requested resource could not be found.
       content:
         application/json:
           schema:
@@ -230,7 +252,7 @@ components:
           schema:
             type: object
             required:
-              - message
+              - error
             properties:
-              message:
+              error:
                 type: string
