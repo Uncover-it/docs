@@ -53,11 +53,12 @@ Example Response:
 
 Fetching a static analysis report:
 
-<Callout title="Important" type="info">This response is automatically cached and memoized.</Callout>
-
 ```js
-await staticReport(apiKey, hash); // hash can be SHA-256, SHA-512 or BLAKE3
+await staticReport(apiKey, hash, { cache: true | false }); // hash can be SHA-256, SHA-512 or BLAKE3. cache defaults to false.
 ```
+
+<Callout title="Note on caching" type="warn">Only set cache to `true` if you **do not** already have a caching logic in the backend as it will result in unwanted consumption of system resources.</Callout>
+
 Example Response:
 ```json
 {
