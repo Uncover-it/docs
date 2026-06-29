@@ -15,7 +15,7 @@
     "@radix-ui/react-popover": "^1.1.17",
     "ajv": "^8.20.0",
     "class-variance-authority": "^0.7.1",
-    "fumadocs-core": "16.10.4",
+    "fumadocs-core": "16.10.6",
     "fumadocs-mdx": "15.0.12",
     "fumadocs-openapi": "^11.0.2",
     "fumadocs-ui": "16.10.4",
