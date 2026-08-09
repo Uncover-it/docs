@@ -5,7 +5,7 @@ export const dynamicParams = false;
 
 export async function GET(
   _request: Request,
-  props: { params: Promise<{ slug: string[] }> }
+  props: { params: Promise<{ slug: string[] }> },
 ) {
   const params = await props.params;
   const slug = [...params.slug];
@@ -23,7 +23,7 @@ export async function GET(
     slug.length = 0;
   }
 
-  let page = source.getPage(slug);
+  const page = source.getPage(slug);
 
   if (!page) {
     return new Response("Not Found", { status: 404 });

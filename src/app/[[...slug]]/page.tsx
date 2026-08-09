@@ -61,7 +61,9 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
             // schema by its document id and hand it to the client component as `payload`.
             APIPage: async ({ document, ...props }) => (
               <OpenAPIPage
-                payload={{ bundled: (await openapi.getSchema(document)).bundled }}
+                payload={{
+                  bundled: (await openapi.getSchema(document)).bundled,
+                }}
                 {...props}
               />
             ),
