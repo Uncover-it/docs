@@ -14,11 +14,12 @@ import { openapi } from "@/lib/openapi";
 import { OpenAPIPage } from "@/components/api-page";
 
 function getMarkdownUrl(pageUrl: string): string {
-  // Use /llm prefix with .txt extension for LLM-friendly URLs
+  // Raw Markdown for LLMs lives next to the page itself, at `<page>.mdx`
+  // (served by `[...slug]/route.ts`).
   if (pageUrl === "/" || pageUrl === "") {
-    return "/llm/index.txt";
+    return "/index.mdx";
   }
-  return `/llm${pageUrl}.txt`;
+  return `${pageUrl}.mdx`;
 }
 
 export default async function Page(props: PageProps<"/[[...slug]]">) {
