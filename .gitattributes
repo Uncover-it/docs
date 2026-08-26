@@ -1,0 +1,9 @@
+# Keep line endings LF in the index and the working tree. Biome's formatter
+# expects LF, so a CRLF checkout on Windows fails `bun run lint` on files it
+# never touched.
+* text=auto eol=lf
+
+# Binary assets Git must not touch.
+*.png binary
+*.ico binary
+*.ttf binary

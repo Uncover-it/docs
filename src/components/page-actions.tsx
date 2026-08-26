@@ -34,6 +34,11 @@ export function LLMCopyButton({
       await navigator.clipboard.write([
         new ClipboardItem({
           "text/plain": fetch(markdownUrl).then(async (res) => {
+            // Without this the error page's own body would land on the clipboard.
+            if (!res.ok) {
+              throw new Error(`Failed to fetch ${markdownUrl}: ${res.status}`);
+            }
+
             const content = await res.text();
             cache.set(markdownUrl, content);
 

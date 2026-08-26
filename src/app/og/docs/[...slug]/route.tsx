@@ -7,6 +7,12 @@ import path from "node:path";
 
 export const revalidate = false;
 
+// Read once and share across every generated image, the same way the fonts in
+// `@/lib/mono` are.
+const logo = fs
+  .readFile(path.join(process.cwd(), "public/logo.png"))
+  .then((data) => `data:image/png;base64,${data.toString("base64")}`);
+
 export async function GET(
   _req: Request,
   props: { params: Promise<{ slug: string[] }> },
@@ -15,15 +21,14 @@ export async function GET(
   const page = source.getPage(slug.slice(0, -1));
   if (!page) notFound();
 
-  const logo = await fs.readFile(path.join(process.cwd(), "public/logo.png"));
-  const src = `data:image/png;base64,${logo.toString("base64")}`;
-
   return new ImageResponse(
     <DefaultImage
       title={page.data.title}
       description={page.data.description}
       site="Uncover it"
-      logo={<img width={80} height={80} src={src} alt="Uncover it Logo" />}
+      logo={
+        <img width={80} height={80} src={await logo} alt="Uncover it Logo" />
+      }
     />,
     await getImageResponseOptions(),
   );
@@ -31,7 +36,6 @@ export async function GET(
 
 export function generateStaticParams() {
   return source.getPages().map((page) => ({
-    lang: page.locale,
     slug: getPageImage(page).segments,
   }));
 }

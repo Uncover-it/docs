@@ -63,18 +63,24 @@ function resolvePointer(doc: JsonObject, ref: string): JsonObject | undefined {
 /**
  * Follow `$ref` pointers within the bundled document. Sibling keywords take
  * precedence over the target, matching how OpenAPI 3.1 merges them.
+ *
+ * @returns the resolved node, and the pointers followed to reach it — callers
+ * track those to break recursive schemas, since merging produces a fresh object
+ * each time and so defeats an identity check.
  */
-function resolve(
+function resolveRefs(
   doc: JsonObject,
   node: JsonValue | undefined,
-): JsonObject | undefined {
+): { schema: JsonObject | undefined; refs: string[] } {
   let current = node;
+  const refs: string[] = [];
   const seen = new Set<string>();
 
   while (isObject(current)) {
     const ref = asString(current.$ref);
     if (!ref?.startsWith("#/") || seen.has(ref)) break;
     seen.add(ref);
+    refs.push(ref);
 
     const target = resolvePointer(doc, ref);
     if (!target) break;
@@ -86,7 +92,14 @@ function resolve(
     current = merged;
   }
 
-  return isObject(current) ? current : undefined;
+  return { schema: isObject(current) ? current : undefined, refs };
+}
+
+function resolve(
+  doc: JsonObject,
+  node: JsonValue | undefined,
+): JsonObject | undefined {
+  return resolveRefs(doc, node).schema;
 }
 
 function typeName(
@@ -134,30 +147,73 @@ function typeName(
 }
 
 /**
+ * Collect the properties an object schema describes, merging its `allOf`
+ * branches in. Without this the common `allOf: [$ref Base, { properties }]`
+ * composition would render only the inline half.
+ */
+function objectShape(
+  doc: JsonObject,
+  schema: JsonObject,
+  seen: ReadonlySet<string>,
+  depth = 0,
+): { properties: Map<string, JsonValue>; required: Set<string> } {
+  const properties = new Map<string, JsonValue>();
+  const required = new Set<string>();
+
+  if (depth <= MAX_DEPTH) {
+    for (const entry of asArray(schema.allOf)) {
+      const { schema: composed, refs } = resolveRefs(doc, entry);
+      if (!composed || refs.some((ref) => seen.has(ref))) continue;
+
+      const nested = objectShape(
+        doc,
+        composed,
+        refs.length > 0 ? new Set([...seen, ...refs]) : seen,
+        depth + 1,
+      );
+      for (const [name, value] of nested.properties)
+        properties.set(name, value);
+      for (const name of nested.required) required.add(name);
+    }
+  }
+
+  // The schema's own keywords win over anything it composes.
+  if (isObject(schema.properties)) {
+    for (const [name, value] of Object.entries(schema.properties)) {
+      if (value !== undefined) properties.set(name, value);
+    }
+  }
+  for (const name of asArray(schema.required)) {
+    if (typeof name === "string") required.add(name);
+  }
+
+  return { properties, required };
+}
+
+/**
  * Render a schema as a nested bullet list of its properties.
+ *
+ * Takes an unresolved node so that it can follow `$ref`s itself and stop when
+ * one repeats along the current branch.
  */
 function schemaLines(
   doc: JsonObject,
-  schema: JsonObject | undefined,
+  node: JsonValue | undefined,
   indent = "",
   depth = 0,
-  branch: JsonObject[] = [],
+  seen: ReadonlySet<string> = new Set(),
 ): string[] {
-  if (!schema || depth > MAX_DEPTH || branch.includes(schema)) return [];
-  const nested = [...branch, schema];
+  if (depth > MAX_DEPTH) return [];
 
-  const properties = isObject(schema.properties)
-    ? schema.properties
-    : undefined;
-  if (properties) {
-    const required = new Set(
-      asArray(schema.required).filter(
-        (v): v is string => typeof v === "string",
-      ),
-    );
+  const { schema, refs } = resolveRefs(doc, node);
+  if (!schema || refs.some((ref) => seen.has(ref))) return [];
+  const branch = refs.length > 0 ? new Set([...seen, ...refs]) : seen;
+
+  const { properties, required } = objectShape(doc, schema, branch);
+  if (properties.size > 0) {
     const lines: string[] = [];
 
-    for (const [name, value] of Object.entries(properties)) {
+    for (const [name, value] of properties) {
       const property = resolve(doc, value);
       const flags = [typeName(doc, property)];
       if (required.has(name)) flags.push("required");
@@ -168,23 +224,24 @@ function schemaLines(
           description ? ` — ${inline(description)}` : ""
         }`,
       );
-      lines.push(
-        ...schemaLines(doc, property, `${indent}  `, depth + 1, nested),
-      );
+      lines.push(...schemaLines(doc, value, `${indent}  `, depth + 1, branch));
     }
 
     return lines;
   }
 
-  const items = resolve(doc, schema.items);
-  if (items) return schemaLines(doc, items, indent, depth + 1, nested);
+  if (schema.items !== undefined) {
+    return schemaLines(doc, schema.items, indent, depth + 1, branch);
+  }
 
-  for (const keyword of ["oneOf", "anyOf", "allOf"] as const) {
+  // `allOf` is still listed here for branches that contribute no properties;
+  // the ones that do were already merged above.
+  for (const keyword of ["allOf", "oneOf", "anyOf"] as const) {
     const branches = asArray(schema[keyword]);
     if (branches.length === 0) continue;
 
     return branches.flatMap((entry) =>
-      schemaLines(doc, resolve(doc, entry), indent, depth + 1, nested),
+      schemaLines(doc, entry, indent, depth + 1, branch),
     );
   }
 
@@ -200,12 +257,14 @@ function contentLines(
 
   for (const [mediaType, value] of Object.entries(content)) {
     const media = resolve(doc, value);
-    const schema = resolve(doc, media?.schema);
+    const schema = media?.schema;
 
     lines.push("", `\`${mediaType}\`:`, "");
     const body = schemaLines(doc, schema);
     lines.push(
-      ...(body.length > 0 ? body : [`- \`${typeName(doc, schema)}\``]),
+      ...(body.length > 0
+        ? body
+        : [`- \`${typeName(doc, resolve(doc, schema))}\``]),
     );
   }
 

@@ -21,15 +21,21 @@ export function getPageImage(page: InferPageType<typeof source>) {
 }
 
 export async function getLLMText(page: InferPageType<typeof source>) {
-  const description = page.data.description;
-
   // Generated OpenAPI pages have no prose body, only an `<APIPage />` element that
   // processing strips away — render their operations from the schema instead.
   const body = page.data._openapi
     ? await getOpenAPIText(await page.data.getText("raw"), page.data.title)
     : undefined;
 
-  return `# ${page.data.title}
+  // An operation's own description is already part of the rendered body, so only
+  // prose pages need the frontmatter description prepended.
+  const description = body ? undefined : page.data.description;
 
-${description ? `${description}\n\n` : ""}${body ?? (await page.data.getText("processed"))}`;
+  return [
+    `# ${page.data.title}`,
+    description,
+    body ?? (await page.data.getText("processed")).trim(),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }

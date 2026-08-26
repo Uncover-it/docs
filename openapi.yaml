@@ -157,9 +157,12 @@ paths:
                     type: string
                   configs:
                     type: object
-                    properties:
-                      FAMILYNAME:
-                        type: object
+                    description: >-
+                      Extracted configurations, keyed by the name of the malware
+                      family they were extracted from. The shape of each entry
+                      depends on the family.
+                    additionalProperties:
+                      type: object
                   mD5Hash:
                     type: string
                   fileName:

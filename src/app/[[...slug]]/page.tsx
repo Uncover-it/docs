@@ -24,12 +24,7 @@ function getMarkdownUrl(pageUrl: string): string {
 
 export default async function Page(props: PageProps<"/[[...slug]]">) {
   const params = await props.params;
-  let page = source.getPage(params.slug);
-
-  if (!page && (!params.slug || params.slug.length === 0)) {
-    page = source.getPage(["index"]);
-  }
-
+  const page = source.getPage(params.slug);
   if (!page) notFound();
 
   const MDX = page.data.body;
@@ -75,26 +70,17 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
   );
 }
 
-export async function generateStaticParams() {
-  const params = source.generateParams();
-
-  return params.map((param) => ({
-    ...param,
-    slug:
-      param.slug.length === 1 && param.slug[0] === "index" ? [] : param.slug,
-  }));
+export function generateStaticParams() {
+  // The root page already comes back as `{ slug: [] }`, matching the optional
+  // catch-all's empty match.
+  return source.generateParams();
 }
 
 export async function generateMetadata(
   props: PageProps<"/[[...slug]]">,
 ): Promise<Metadata> {
   const params = await props.params;
-  let page = source.getPage(params.slug);
-
-  if (!page && (!params.slug || params.slug.length === 0)) {
-    page = source.getPage(["index"]);
-  }
-
+  const page = source.getPage(params.slug);
   if (!page) notFound();
 
   return {
