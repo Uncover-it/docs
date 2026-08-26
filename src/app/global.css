@@ -21,3 +21,23 @@
   --color-fd-accent-foreground: hsl(0, 0%, 9%);
   --color-fd-ring: hsl(0, 0%, 63.9%);
 }
+
+#nd-sidebar,
+#nd-sidebar-mobile,
+#nd-subnav,
+[data-toc-popover] > header {
+  -webkit-backdrop-filter: blur(64px); /* backdrop-blur-3xl */
+  backdrop-filter: blur(64px);
+}
+
+#nd-sidebar {
+  background-color: color-mix(in oklab, var(--color-fd-card) 60%, transparent);
+}
+
+#nd-sidebar-mobile {
+  background-color: color-mix(
+    in oklab,
+    var(--color-fd-background) 60%,
+    transparent
+  );
+}

@@ -36,6 +36,14 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
       full={page.data.full}
       tableOfContent={{ style: "clerk" }}
     >
+      <div
+        aria-hidden
+        className="absolute inset-0 isolate contain-strict -z-20"
+      >
+        <div className="w-140 h-320 -translate-y-87.5 absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]" />
+        <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
+        <div className="h-320 -translate-y-87.5 absolute left-0 top-0 w-60 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
+      </div>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription className="mb-0">
         {page.data.description}
@@ -50,11 +58,7 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
       <DocsBody>
         <MDX
           components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
-            // Generated OpenAPI pages embed <APIPage document="..." operations={...} />.
-            // v11 dropped the server-bound page component, so resolve the bundled
-            // schema by its document id and hand it to the client component as `payload`.
             APIPage: async ({ document, ...props }) => (
               <OpenAPIPage
                 payload={{
@@ -71,8 +75,6 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
 }
 
 export function generateStaticParams() {
-  // The root page already comes back as `{ slug: [] }`, matching the optional
-  // catch-all's empty match.
   return source.generateParams();
 }
 
