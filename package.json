@@ -14,7 +14,7 @@
   "dependencies": {
     "@radix-ui/react-popover": "^1.1.23",
     "class-variance-authority": "^0.7.1",
-    "fumadocs-core": "16.15.2",
+    "fumadocs-core": "16.15.4",
     "fumadocs-mdx": "15.3.1",
     "fumadocs-openapi": "^11.3.4",
     "fumadocs-ui": "16.15.2",
